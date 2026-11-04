@@ -1,0 +1,39 @@
+name: Build Volla Phone X reference kernel
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y bc bison build-essential ccache flex git libelf-dev libncurses-dev libssl-dev libgmp10 libmpfr6 libmpc3 make python3 rsync xz-utils zstd file
+
+      - name: Build reference kernel
+        run: bash scripts/build-yggdrasilx-kernel.sh 2>&1 | tee build.log
+
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: yggdrasilx-build-logs
+          path: build.log
+          if-no-files-found: warn
+
+      - name: Upload kernel
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: yggdrasilx-reference-kernel
+          path: artifacts/yggdrasilx-reference/**
