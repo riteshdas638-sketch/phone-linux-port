@@ -24,6 +24,17 @@ if [[ "$ACTUAL_KERNEL_COMMIT" != "$KERNEL_COMMIT" ]]; then
   exit 10
 fi
 
+log "Verify MediaTek device-tree generator prerequisites"
+if [[ ! -f "$KERNEL/tools/dct/DrvGen.py" ]]; then
+  echo "Expected MediaTek device-tree generator missing: $KERNEL/tools/dct/DrvGen.py" >&2
+  exit 13
+fi
+if [[ ! -x /usr/bin/python2 ]]; then
+  echo "Python 2 interpreter missing or not executable: /usr/bin/python2" >&2
+  exit 14
+fi
+/usr/bin/python2 --version 2>&1 | tee "$ART/python2-version.txt"
+
 log "Fetch the exact AOSP AArch64 GCC 4.9 toolchain revision"
 # Use the manifest-pinned commit directly; branch names are not stable IDs.
 git init "$TOOLCHAIN"
@@ -65,7 +76,7 @@ cp "$CONFIG" "$ART/reference.config"
 
 log "Compile kernel image and device trees"
 make -C "$KERNEL" O="$OUT" ARCH=arm64 CROSS_COMPILE="$CROSS" \
-  HOSTCC=gcc HOSTCXX=g++ -j2 Image.gz-dtb dtbs
+  HOSTCC=gcc HOSTCXX=g++ python=/usr/bin/python2 -j2 Image.gz-dtb dtbs
 
 IMAGE="$OUT/arch/arm64/boot/Image.gz-dtb"
 if [[ ! -s "$IMAGE" ]]; then

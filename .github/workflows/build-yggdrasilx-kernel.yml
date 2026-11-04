@@ -8,7 +8,7 @@ permissions:
 
 jobs:
   build:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     timeout-minutes: 120
 
     steps:
@@ -18,10 +18,17 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y bc bison build-essential ccache flex git libelf-dev libncurses-dev libssl-dev libgmp10 libmpfr6 libmpc3 make python3 rsync xz-utils zstd file
+          sudo apt-get install -y bc bison build-essential ccache flex git libelf-dev libncurses-dev libssl-dev libgmp10 libmpfr6 libmpc3 make python2 python3 rsync xz-utils zstd file
+
+      - name: Verify Python 2
+        run: |
+          test -x /usr/bin/python2
+          /usr/bin/python2 --version
 
       - name: Build reference kernel
-        run: bash scripts/build-yggdrasilx-kernel.sh 2>&1 | tee build.log
+        run: |
+          set -o pipefail
+          bash scripts/build-yggdrasilx-kernel.sh 2>&1 | tee build.log
 
       - name: Upload logs
         if: always()
@@ -37,3 +44,4 @@ jobs:
         with:
           name: yggdrasilx-reference-kernel
           path: artifacts/yggdrasilx-reference/**
+          if-no-files-found: error
