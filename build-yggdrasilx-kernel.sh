@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 WORK="${RUNNER_TEMP:-${TMPDIR:-/tmp}}/yggdrasilx-reference-build"
 KERNEL="$WORK/android_kernel_volla_yggdrasilx"
 TOOLCHAIN="$WORK/aarch64-linux-android-4.9"
