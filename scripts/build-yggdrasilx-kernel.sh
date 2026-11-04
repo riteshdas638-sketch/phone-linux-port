@@ -76,7 +76,8 @@ cp "$CONFIG" "$ART/reference.config"
 
 log "Compile kernel image and device trees"
 make -C "$KERNEL" O="$OUT" ARCH=arm64 CROSS_COMPILE="$CROSS" \
-  HOSTCC=gcc HOSTCXX=g++ python=/usr/bin/python2 -j2 Image.gz-dtb dtbs
+  HOSTCC=gcc HOSTCXX=g++ python=/usr/bin/python2 KCFLAGS=-Wno-error=missing-braces \
+  -j2 Image.gz-dtb dtbs
 
 IMAGE="$OUT/arch/arm64/boot/Image.gz-dtb"
 if [[ ! -s "$IMAGE" ]]; then
